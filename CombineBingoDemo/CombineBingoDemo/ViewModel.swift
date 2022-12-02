@@ -10,10 +10,9 @@ import Combine
 
 class ViewModel {
     @Published var isDieAready: Bool?
-   
-    
+    var m_size: Int = 0
     func isDie(){
-        if(MainVC().m_size > 100) {
+        if(m_size > 100) {
             isDieAready = true
         } else {
             isDieAready = false

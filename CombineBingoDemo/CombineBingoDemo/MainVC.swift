@@ -12,31 +12,31 @@ class MainVC: UIViewController {
 
     @IBOutlet weak var btn: UIButton!
     @IBOutlet weak var txf: UITextField!
-    var m_size: Int = 0
+    let m_viewModel = ViewModel()
+    var m_obsercer: Set<AnyCancellable> = []
     override func viewDidLoad() {
         super.viewDidLoad()
-        ViewModel().$isDieAready.sink { [weak self] _ in
-            if (ViewModel().isDieAready == true){
-                
+        bindUIControlEvent()
+        m_viewModel.$isDieAready.sink { [weak self] vlaue in
+            if (vlaue == true){
                 self?.btn.backgroundColor = .blue
                 
             }else {
                 self?.btn.backgroundColor = .red
             }
-        }
-        bindUIControlEvent()
+        }.store(in: &m_obsercer)
         setUI()
     }
     func bindUIControlEvent(){
-        txf.publisher(for: .editingDidEnd).sink { [unowned self] _ in
-            m_size = Int(txf.text!) ?? 500
-        }
+        txf.publisher(for: .editingChanged).sink { [unowned self] _ in
+            m_viewModel.m_size = Int(txf.text!) ?? 0
+        }.store(in: &m_obsercer)
     }
 
     func setUI(){
-        btn.publisher(for: .touchUpInside).sink { _ in } receiveValue: { [self] _ in
-            ViewModel().isDie()
-        }
+        btn.publisher(for: .touchUpInside).sink { [weak self]_ in
+            self?.m_viewModel.isDie()
+        }.store(in: &m_obsercer)
     }
 
 }
